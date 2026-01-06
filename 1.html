@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توکزن - چت هوش مصنوعی</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/htmlbars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+    <!-- ایمپورت فایل توکن‌ها -->
+    <script src="tokens.js"></script>
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --muted: #b7b7b7;
+            --panel: #1a1a1a;
+            --blue: #2f7cff;
+            --blue-dark: #1d5fd6;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "IranSans", "Vazirmatn", sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* صفحه اصلی */
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+        }
+
+        .main-screen {
+            display: flex;
+        }
+
+        .chat-screen {
+            display: none;
+        }
+
+        .history-screen {
+            display: none;
+        }
+
+        /* هدر */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 44px;
+            margin-bottom: 6vh;
+        }
+
+        .brand {
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            color: var(--text);
+            font-size: 18px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* محتوای مرکزی */
+        .center-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stack {
+            display: inline-block;
+            position: relative;
+            width: 220px;
+            height: 170px;
+            margin-bottom: 18px;
+        }
+
+        .tile-back {
+            position: absolute;
+            inset: 0;
+            transform: translate(6%, 8%);
+            background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+            border-radius: 18px;
+            box-shadow: 0 14px 22px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+
+        .tile-front {
+            position: absolute;
+            inset: 0;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 28px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(0,0,0,0.05);
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+
+        .bubble-svg {
+            width: 70%;
+            height: 70%;
+        }
+
+        .prompt {
+            font-size: 19px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* کادر ورودی پیام */
+        .input-section {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            background: var(--panel);
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 8px;
+            gap: 8px;
+            min-height: 56px;
+            width: 100%;
+        }
+
+        .message-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            padding: 8px 12px;
+            min-height: 20px;
+            resize: none;
+            max-height: 200px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .message-input::placeholder {
+            color: var(--muted);
+        }
+
+        .send-btn {
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: 40px;
+        }
+
+        .send-btn:hover {
+            background: var(--blue-dark);
+        }
+
+        .send-btn:disabled {
+            background: var(--muted);
+            cursor: not-allowed;
+        }
+
+        /* بخش چت */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-message {
+            background: var(--blue);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid #333;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .typing-indicator {
+            color: var(--muted);
+            padding: 12px 16px;
+            align-self: flex-start;
+            font-style: italic;
+            display: none;
+        }
+
+        /* استایل کد - بهبود یافته */
+        .code-container {
+            position: relative;
+            margin: 10px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            min-height: 50px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #333;
+        }
+
+        .code-language {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s ease;
+            min-width: 60px;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background: var(--blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .code-block {
+            padding: 16px;
+            margin: 0;
+            overflow-x: auto;
+            background: #1a1a1a;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre;
+            word-wrap: normal;
+        }
+
+        .code-block code {
+            background: none !important;
+            padding: 0 !important;
+            display: block;
+            white-space: pre;
+        }
+
+        /* استایل برای کدهای هایلایت شده */
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        /* تاریخچه */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: var(--panel);
+            border: 1px solid #333;
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .history-preview {
+            color: var(--muted);
+            font-size: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-time {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: var(--muted);
+            padding: 40px 20px;
+        }
+
+        /* اطلاعات کاربر */
+        .user-info {
+            background: var(--panel);
+            border: 1px solid #333;
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .user-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .user-info-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-info-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .user-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info-label {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .user-info-value {
+            font-size: 11px;
+            color: var(--text);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .stack {
+                width: 140px;
+                height: 110px;
+            }
+            .prompt {
+                font-size: 16px;
+            }
+            .brand {
+                font-size: 16px;
+            }
+            .user-info-details {
+                grid-template-columns: 1fr;
+            }
+            .message {
+                max-width: 90%;
+            }
+            .code-block {
+                font-size: 12px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه اصلی -->
+    <div class="screen main-screen" id="mainScreen">
+        <div class="header">
+            <div class="brand">توکزن</div>
+            <div class="header-buttons">
+                <button class="header-btn" onclick="startNewChat()">
+                    <i class="fas fa-plus"></i>
+                    چت جدید
+                </button>
+                <button class="header-btn" onclick="showHistory()">
+                    <i class="fas fa-history"></i>
+                    تاریخچه
+                </button>
+            </div>
+        </div>
+
+        <div class="center-content">
+            <div class="stack">
+                <div class="tile-back"></div>
+                <div class="tile-front">
+                    <svg class="bubble-svg" viewBox="0 0 200 200">
+                        <polygon points="20,35 26,30 28,22 32,30 40,31 33,36 35,44 28,39 21,44 23,36" fill="#2f7cff" opacity="0.95"/>
+                        <rect x="40" y="55" rx="16" ry="16" width="120" height="80" fill="#2f7cff"/>
+                        <path d="M 84 140 L 96 126 L 110 140 Z" fill="#2f7cff"/>
+                        <rect x="56" y="80" width="86" height="10" rx="5" fill="#ffffff" opacity="0.88"/>
+                        <rect x="56" y="98" width="60" height="10" rx="5" fill="#ffffff" opacity="0.85"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="prompt">چطور میتونم کمکت کنم؟</div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-wrapper">
+                <textarea class="message-input" id="messageInput" placeholder="پیام خودتو اینجا بنویس..." rows="1"></textarea>
+                <button class="send-btn" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                    ارسال
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه چت -->
+    <div class="screen chat-screen" id="chatScreen">
+        <div class="header">
+            <button class="header-btn" onclick="showMainScreen()">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت
+            </button>
+            <div class="brand">توکزن</div>
+            <div class="header-buttons">
+                <button class="header-btn" onclick="startNewChat()">
+                    <i class="fas fa-plus"></i>
+                    چت جدید
+                </button>
+                <button class="header-btn" onclick="showHistory()">
+                    <i class="fas fa-history"></i>
+                    تاریخچه
+                </button>
+            </div>
+        </div>
+
+        <div class="user-info" id="userInfo" style="display: none;">
+            <div class="user-info-header">
+                <div class="user-info-title">👤 اطلاعات کاربر</div>
+                <button onclick="document.getElementById('userInfo').style.display = 'none'" style="background: none; border: none; color: var(--muted); cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="user-info-details" id="userInfoDetails">
+                <!-- اطلاعات کاربر اینجا نمایش داده می‌شود -->
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span>توکزن در حال تایپ است...</span>
+        </div>
+
+        <div class="input-section">
+            <div class="input-wrapper">
+                <textarea class="message-input" id="chatMessageInput" placeholder="پیام خودتو اینجا بنویس..." rows="1"></textarea>
+                <button class="send-btn" id="chatSendButton">
+                    <i class="fas fa-paper-plane"></i>
+                    ارسال
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه تاریخچه -->
+    <div class="screen history-screen" id="historyScreen">
+        <div class="header">
+            <button class="header-btn" onclick="showMainScreen()">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت
+            </button>
+            <div class="brand">تاریخچه چت‌ها</div>
+            <div style="width: 80px;"></div>
+        </div>
+
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+    <script>
+        // استفاده از توکن‌ها از فایل tokens.js
+        const CHAT_API_KEYS = TOKENS.CHAT_API_KEYS;
+        const CHAT_API_URL = TOKENS.CHAT_API_URL;
+        const WEATHER_API_KEY = TOKENS.WEATHER_API_KEY;
+
+        let currentChatTokenIndex = 0;
+
+        // عناصر صفحه
+        const mainScreen = document.getElementById('mainScreen');
+        const chatScreen = document.getElementById('chatScreen');
+        const historyScreen = document.getElementById('historyScreen');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessageInput = document.getElementById('chatMessageInput');
+        const chatSendButton = document.getElementById('chatSendButton');
+        const chatMessages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const historyList = document.getElementById('historyList');
+        const userInfo = document.getElementById('userInfo');
+        const userInfoDetails = document.getElementById('userInfoDetails');
+
+        // سیستم شناسایی و پروفایل کاربر
+        class UserProfile {
+            constructor() {
+                this.storageKey = 'tokzen_user_profiles';
+                this.currentUser = this.identifyUser();
+                this.profiles = this.loadProfiles();
+                this.updateUserProfile();
+            }
+
+            identifyUser() {
+                const userAgent = navigator.userAgent;
+                const platform = navigator.platform;
+                const language = navigator.language;
+                
+                // شناسایی دستگاه
+                let deviceType = 'Desktop';
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+                    deviceType = 'Mobile';
+                } else if (/Tablet|iPad/i.test(userAgent)) {
+                    deviceType = 'Tablet';
+                }
+
+                // شناسایی مرورگر
+                let browser = 'Unknown';
+                if (userAgent.includes('Chrome')) browser = 'Chrome';
+                else if (userAgent.includes('Firefox')) browser = 'Firefox';
+                else if (userAgent.includes('Safari')) browser = 'Safari';
+                else if (userAgent.includes('Edge')) browser = 'Edge';
+
+                const userId = this.generateUserId(userAgent + platform + language);
+                
+                return {
+                    id: userId,
+                    deviceType: deviceType,
+                    browser: browser,
+                    platform: platform,
+                    language: language,
+                    userAgent: userAgent,
+                    firstSeen: new Date().toISOString(),
+                    lastSeen: new Date().toISOString(),
+                    interactionCount: 0,
+                    preferences: {}
+                };
+            }
+
+            generateUserId(seed) {
+                let hash = 0;
+                for (let i = 0; i < seed.length; i++) {
+                    const char = seed.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return 'user_' + Math.abs(hash).toString(16);
+            }
+
+            loadProfiles() {
+                try {
+                    const saved = localStorage.getItem(this.storageKey);
+                    return saved ? JSON.parse(saved) : {};
+                } catch (error) {
+                    return {};
+                }
+            }
+
+            saveProfiles() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.profiles));
+                } catch (error) {
+                    console.error('Error saving user profiles:', error);
+                }
+            }
+
+            updateUserProfile() {
+                this.currentUser.lastSeen = new Date().toISOString();
+                this.currentUser.interactionCount++;
+                
+                if (!this.profiles[this.currentUser.id]) {
+                    this.profiles[this.currentUser.id] = this.currentUser;
+                } else {
+                    this.profiles[this.currentUser.id] = {
+                        ...this.profiles[this.currentUser.id],
+                        lastSeen: this.currentUser.lastSeen,
+                        interactionCount: this.profiles[this.currentUser.id].interactionCount + 1
+                    };
+                }
+                this.saveProfiles();
+            }
+
+            getUserPreferences() {
+                return this.profiles[this.currentUser.id]?.preferences || {};
+            }
+
+            updateUserPreferences(newPreferences) {
+                if (this.profiles[this.currentUser.id]) {
+                    this.profiles[this.currentUser.id].preferences = {
+                        ...this.profiles[this.currentUser.id].preferences,
+                        ...newPreferences
+                    };
+                    this.saveProfiles();
+                }
+            }
+
+            getUserProfile() {
+                return this.profiles[this.currentUser.id] || this.currentUser;
+            }
+
+            displayUserInfo() {
+                const profile = this.getUserProfile();
+                const preferences = this.getUserPreferences();
+                
+                userInfoDetails.innerHTML = `
+                    <div class="user-info-item">
+                        <span class="user-info-label">شناسه کاربر</span>
+                        <span class="user-info-value">${profile.id.substring(0, 8)}...</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">دستگاه</span>
+                        <span class="user-info-value">${profile.deviceType} - ${profile.browser}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">تعداد تعاملات</span>
+                        <span class="user-info-value">${profile.interactionCount}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">اولین بازدید</span>
+                        <span class="user-info-value">${new Date(profile.firstSeen).toLocaleDateString('fa-IR')}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">علاقه‌مندی‌ها</span>
+                        <span class="user-info-value">${Object.keys(preferences).length > 0 ? Object.keys(preferences).join(', ') : 'ثبت نشده'}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">سیستم عامل</span>
+                        <span class="user-info-value">${profile.platform}</span>
+                    </div>
+                `;
+                
+                userInfo.style.display = 'block';
+            }
+        }
+
+        const userProfile = new UserProfile();
+
+        // مدیریت تاریخچه چت با قابلیت یادگیری
+        class ChatHistory {
+            constructor() {
+                this.storageKey = 'tokzen_chat_history';
+                this.conversations = this.loadHistory();
+                this.currentConversationId = null;
+                this.userPreferences = userProfile.getUserPreferences();
+            }
+
+            loadHistory() {
+                try {
+                    const saved = localStorage.getItem(this.storageKey);
+                    return saved ? JSON.parse(saved) : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            saveHistory() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.conversations));
+                    this.learnFromConversations();
+                    userProfile.updateUserPreferences(this.userPreferences);
+                } catch (error) {
+                    console.error('Error saving chat history:', error);
+                }
+            }
+
+            learnFromConversations() {
+                const recentMessages = this.conversations
+                    .slice(0, 5)
+                    .flatMap(conv => conv.messages)
+                    .filter(msg => msg.role === 'user')
+                    .map(msg => msg.content.toLowerCase());
+
+                // یادگیری علاقه‌مندی‌ها از مکالمات
+                const topics = {
+                    'tecnology': ['برنامه نویسی', 'کامپیوتر', 'هوش مصنوعی', 'ai', 'تکنولوژی', 'نرم افزار'],
+                    'sports': ['فوتبال', 'ورزش', 'مسابقه', 'تیم', 'برنده'],
+                    'music': ['آهنگ', 'موسیقی', 'خواننده', 'آلبوم', 'concert'],
+                    'movies': ['فیلم', 'سینما', 'کارگردان', 'بازیگر', 'netflix'],
+                    'food': ['غذا', 'رستوران', 'پخت', 'recipe', 'خوراکی']
+                };
+
+                for (const [topic, keywords] of Object.entries(topics)) {
+                    const topicCount = recentMessages.filter(msg => 
+                        keywords.some(keyword => msg.includes(keyword))
+                    ).length;
+                    
+                    if (topicCount > 2) {
+                        this.userPreferences[topic] = true;
+                    }
+                }
+
+                // یادگیری نام کاربر
+                recentMessages.forEach(message => {
+                    if (message.includes('اسمم') || message.includes('نامم')) {
+                        const nameMatch = message.match(/(اسمم|نامم)\s+(.+?)(\s|$)/);
+                        if (nameMatch && nameMatch[2]) {
+                            this.userPreferences.userName = nameMatch[2].trim();
+                        }
+                    }
+                });
+            }
+
+            saveCurrentConversation() {
+                if (this.currentConversationId && chatMessages.children.length > 0) {
+                    const messages = this.getMessagesFromChat();
+                    if (messages.length > 0) {
+                        const conversation = this.getConversation(this.currentConversationId);
+                        if (conversation) {
+                            conversation.messages = messages;
+                            conversation.preview = messages[messages.length - 1].content;
+                            this.saveHistory();
+                        }
+                    }
+                }
+            }
+
+            getMessagesFromChat() {
+                const messages = [];
+                const messageElements = chatMessages.querySelectorAll('.message');
+                
+                messageElements.forEach(element => {
+                    const isUser = element.classList.contains('user-message');
+                    const content = element.textContent;
+                    messages.push({
+                        role: isUser ? 'user' : 'assistant',
+                        content: content,
+                        type: 'text'
+                    });
+                });
+                
+                return messages;
+            }
+
+            addConversation(title, messages = []) {
+                this.saveCurrentConversation();
+
+                const conversation = {
+                    id: Date.now().toString(),
+                    title: title,
+                    messages: messages,
+                    timestamp: new Date().toISOString(),
+                    preview: messages.length > 0 ? messages[messages.length - 1].content : 'بدون پیام'
+                };
+                
+                this.conversations.unshift(conversation);
+                if (this.conversations.length > 20) {
+                    this.conversations = this.conversations.slice(0, 20);
+                }
+                this.saveHistory();
+                this.currentConversationId = conversation.id;
+                return conversation.id;
+            }
+
+            getConversation(id) {
+                return this.conversations.find(conv => conv.id === id);
+            }
+
+            updateConversation(id, messages) {
+                const conversation = this.getConversation(id);
+                if (conversation) {
+                    conversation.messages = messages;
+                    conversation.preview = messages.length > 0 ? messages[messages.length - 1].content : 'بدون پیام';
+                    this.saveHistory();
+                }
+            }
+
+            getAllConversations() {
+                return this.conversations;
+            }
+
+            deleteConversation(id) {
+                this.conversations = this.conversations.filter(conv => conv.id !== id);
+                if (this.currentConversationId === id) {
+                    this.currentConversationId = null;
+                }
+                this.saveHistory();
+            }
+
+            setCurrentConversation(id) {
+                this.currentConversationId = id;
+            }
+
+            getCurrentConversationId() {
+                return this.currentConversationId;
+            }
+
+            getUserPreferences() {
+                return this.userPreferences;
+            }
+        }
+
+        const chatHistory = new ChatHistory();
+
+        // سیستم دسترسی به منابع خارجی
+        class ExternalDataService {
+            async getWeather(city = 'tehran') {
+                try {
+                    // شبیه‌سازی داده‌های آب و هوا
+                    return {
+                        temperature: Math.floor(Math.random() * 35) + 5,
+                        condition: 'آفتابی',
+                        city: 'تهران',
+                        humidity: Math.floor(Math.random() * 50) + 30
+                    };
+                } catch (error) {
+                    console.error('Weather API error:', error);
+                    return null;
+                }
+            }
+
+            async getNews() {
+                try {
+                    // شبیه‌سازی اخبار
+                    const news = [
+                        { title: 'پیشرفت جدید در هوش مصنوعی', category: 'تکنولوژی' },
+                        { title: 'بروزرسانی جدید سیستم عامل', category: 'کامپیوتر' },
+                        { title: 'توسعه برنامه‌های کاربردی وب', category: 'برنامه نویسی' }
+                    ];
+                    return news;
+                } catch (error) {
+                    console.error('News API error:', error);
+                    return [];
+                }
+            }
+
+            async getLiveData(type, query) {
+                switch (type) {
+                    case 'weather':
+                        return await this.getWeather(query);
+                    case 'news':
+                        return await this.getNews();
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        const externalData = new ExternalDataService();
+
+        // تابع برای تشخیص و فرمت‌دهی کد در پاسخ‌ها
+        function formatCodeBlocks(message) {
+            // الگو برای تشخیص کدهای برنامه‌نویسی
+            const codePatterns = [
+                { pattern: /```(\w+)?\s*([\s\S]*?)```/g, process: processCodeBlock },
+                { pattern: /`([^`]+)`/g, process: processInlineCode }
+            ];
+
+            let formattedMessage = message;
+            
+            for (const { pattern, process } of codePatterns) {
+                formattedMessage = formattedMessage.replace(pattern, process);
+            }
+            
+            return formattedMessage;
+        }
+
+        function processCodeBlock(match, language, code) {
+            const lang = language || 'text';
+            const codeId = 'code-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            return `
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-language">${lang}</span>
+                        <button class="copy-btn" data-code-id="${codeId}">
+                            <i class="far fa-copy"></i>
+                            کپی
+                        </button>
+                    </div>
+                    <pre class="code-block"><code id="${codeId}" class="language-${lang}">${escapeHtml(code.trim())}</code></pre>
+                </div>
+            `;
+        }
+
+        function processInlineCode(match, code) {
+            return `<code style="background: #2a2a2a; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${escapeHtml(code)}</code>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // تابع کپی کد با event delegation
+        function initCopyButtons() {
+            // حذف event listener های قبلی
+            document.removeEventListener('click', handleCopyClick);
+            // اضافه کردن event listener جدید
+            document.addEventListener('click', handleCopyClick);
+        }
+
+        function handleCopyClick(event) {
+            if (event.target.closest('.copy-btn')) {
+                const copyBtn = event.target.closest('.copy-btn');
+                const codeId = copyBtn.getAttribute('data-code-id');
+                copyCode(codeId, copyBtn);
+            }
+        }
+
+        // تابع کپی کد
+        function copyCode(codeId, copyBtn) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+
+            const text = codeElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> کپی شد!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="far fa-copy"></i> کپی';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy code: ', err);
+                copyBtn.innerHTML = '<i class="fas fa-times"></i> خطا!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="far fa-copy"></i> کپی';
+                }, 2000);
+            });
+        }
+
+        // تابع auto-resize برای textarea
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+
+        // تابع بهبود یافته برای ارسال درخواست چت با قابلیت‌های جدید
+        async function sendMessageToAI(message, conversationHistory = []) {
+            let lastError = null;
+            
+            // امتحان تمام توکن‌های موجود
+            for (let i = 0; i < CHAT_API_KEYS.length; i++) {
+                const tokenIndex = (currentChatTokenIndex + i) % CHAT_API_KEYS.length;
+                const apiKey = CHAT_API_KEYS[tokenIndex];
+                
+                try {
+                    const lowerMessage = message.toLowerCase();
+                    const userPreferences = chatHistory.getUserPreferences();
+                    
+                    // پاسخ‌های شخصی‌سازی شده
+                    if (lowerMessage.includes('اسمت') || lowerMessage.includes('نامت') || lowerMessage.includes('تو کیستی')) {
+                        return `من **توکزن** هستم! یک دستیار هوش مصنوعی که اینجا در خدمت شماست. 😊\n\n${userPreferences.userName ? `سلام ${userPreferences.userName}!` : 'خوشحالم که باهاتون آشنا شدم!'}`;
+                    }
+                    
+                    if (lowerMessage.includes('مدل') && !lowerMessage.includes('گوشی') && !lowerMessage.includes('ماشین')) {
+                        return "من بر پایه مدل‌های پیشرفته **Chat GPT 4o** و **Chat GPT 5** کار می‌کنم!";
+                    }
+
+                    // بررسی درخواست اطلاعات خارجی
+                    if (lowerMessage.includes('هوا') || lowerMessage.includes('آب و هوا')) {
+                        const weather = await externalData.getWeather();
+                        if (weather) {
+                            return `🌤️ وضعیت آب و هوا در ${weather.city}:\nدما: ${weather.temperature}°C\nشرایط: ${weather.condition}\nرطوبت: ${weather.humidity}%`;
+                        }
+                    }
+
+                    if (lowerMessage.includes('اخبار') || lowerMessage.includes('خبر')) {
+                        const news = await externalData.getNews();
+                        if (news.length > 0) {
+                            let newsText = '📰 آخرین اخبار:\n';
+                            news.forEach((item, index) => {
+                                newsText += `${index + 1}. ${item.title} (${item.category})\n`;
+                            });
+                            return newsText;
+                        }
+                    }
+
+                    // اضافه کردن اطلاعات کاربر به context
+                    const systemMessage = {
+                        role: "system",
+                        content: `You are Tokzen, a helpful AI assistant. User preferences: ${JSON.stringify(userPreferences)}. Current device: ${userProfile.currentUser.deviceType}. Respond in Persian.`
+                    };
+
+                    const messages = [
+                        systemMessage,
+                        ...conversationHistory,
+                        { role: "user", content: message }
+                    ];
+
+                    const response = await fetch(CHAT_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': 'https://tokzen.freehost.io',
+                            'X-Title': 'Tokzen Chat'
+                        },
+                        body: JSON.stringify({
+                            model: "deepseek/deepseek-chat",
+                            messages: messages,
+                            max_tokens: 1000,
+                            temperature: 0.7
+                        })
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status === 401) {
+                            console.warn(`Token ${tokenIndex + 1} failed with status ${response.status}, trying next token...`);
+                            lastError = new Error(`خطای سهمیه یا احراز هویت با توکن ${tokenIndex + 1}`);
+                            continue;
+                        }
+                        throw new Error(`خطای API: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    currentChatTokenIndex = tokenIndex;
+                    console.log(`Using token ${tokenIndex + 1} successfully`);
+                    
+                    return data.choices[0].message.content;
+                    
+                } catch (error) {
+                    console.error(`Error with token ${tokenIndex + 1}:`, error);
+                    lastError = error;
+                }
+            }
+            
+            console.error('All tokens failed:', lastError);
+            return "متاسفانه همه توکن‌ها در دسترس نیستند. لطفا بعدا تلاش کنید.";
+        }
+
+        // تابع بهبود یافته برای اضافه کردن پیام به چت
+        function addMessageToChat(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            if (!isUser) {
+                // فرمت‌دهی کدهای موجود در پیام هوش مصنوعی
+                messageDiv.innerHTML = formatCodeBlocks(message);
+            } else {
+                messageDiv.textContent = message;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+            
+            // هایلایت کدهای موجود در پیام و فعال کردن دکمه‌های کپی
+            if (!isUser) {
+                setTimeout(() => {
+                    // هایلایت کد
+                    messageDiv.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                    
+                    // فعال کردن دکمه‌های کپی
+                    initCopyButtons();
+                }, 100);
+            }
+        }
+
+        // بقیه توابع (نمایش صفحات، مدیریت چت و تاریخچه)
+        function showMainScreen() {
+            chatHistory.saveCurrentConversation();
+            mainScreen.style.display = 'flex';
+            chatScreen.style.display = 'none';
+            historyScreen.style.display = 'none';
+            messageInput.focus();
+        }
+
+        function showChatScreen(conversationId = null) {
+            mainScreen.style.display = 'none';
+            chatScreen.style.display = 'flex';
+            historyScreen.style.display = 'none';
+            
+            if (conversationId) {
+                loadConversation(conversationId);
+            } else {
+                startNewConversation();
+            }
+        }
+
+        function showHistory() {
+            chatHistory.saveCurrentConversation();
+            mainScreen.style.display = 'none';
+            chatScreen.style.display = 'none';
+            historyScreen.style.display = 'block';
+            loadHistoryList();
+        }
+
+        function startNewChat() {
+            chatHistory.saveCurrentConversation();
+            const newConversationId = chatHistory.addConversation('چت جدید');
+            showChatScreen(newConversationId);
+        }
+
+        function startNewConversation() {
+            chatMessages.innerHTML = '';
+            chatMessageInput.value = '';
+            chatMessageInput.focus();
+        }
+
+        function loadConversation(conversationId) {
+            const conversation = chatHistory.getConversation(conversationId);
+            if (conversation) {
+                chatHistory.setCurrentConversation(conversationId);
+                chatMessages.innerHTML = '';
+                
+                conversation.messages.forEach(msg => {
+                    addMessageToChat(msg.content, msg.role === 'user');
+                });
+                
+                // فعال کردن دکمه‌های کپی برای تاریخچه
+                setTimeout(() => {
+                    chatMessages.querySelectorAll('.code-container').forEach((codeContainer) => {
+                        const codeElement = codeContainer.querySelector('code');
+                        if (codeElement && codeElement.id) {
+                            const copyBtn = codeContainer.querySelector('.copy-btn');
+                            if (copyBtn) {
+                                copyBtn.setAttribute('data-code-id', codeElement.id);
+                            }
+                        }
+                    });
+                    initCopyButtons();
+                }, 100);
+                
+                chatMessageInput.focus();
+                scrollToBottom();
+            }
+        }
+
+        function loadHistoryList() {
+            const conversations = chatHistory.getAllConversations();
+            historyList.innerHTML = '';
+
+            if (conversations.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-history">
+                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <h3>هیچ مکالمه‌ای وجود ندارد</h3>
+                        <p>شروع به چت کنید تا تاریخچه شما اینجا نمایش داده شود</p>
+                    </div>
+                `;
+                return;
+            }
+
+            conversations.forEach(conv => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-title">
+                        ${conv.title}
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteConversation('${conv.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="history-preview">${conv.preview}</div>
+                    <div class="history-time">
+                        ${new Date(conv.timestamp).toLocaleString('fa-IR')}
+                    </div>
+                `;
+                historyItem.onclick = () => showChatScreen(conv.id);
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function deleteConversation(id) {
+            if (confirm('آیا از حذف این مکالمه مطمئن هستید؟')) {
+                chatHistory.deleteConversation(id);
+                loadHistoryList();
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessageFromMain() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            let conversationId = chatHistory.getCurrentConversationId();
+            if (!conversationId) {
+                const conversationTitle = message.length > 30 ? message.substring(0, 30) + '...' : message;
+                conversationId = chatHistory.addConversation(conversationTitle, []);
+            }
+
+            showChatScreen(conversationId);
+            addMessageToChat(message, true);
+            messageInput.value = '';
+            autoResizeTextarea(messageInput);
+
+            // درخواست چت معمولی
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                const conversation = chatHistory.getConversation(conversationId);
+                const conversationHistory = conversation ? conversation.messages : [];
+                
+                const response = await sendMessageToAI(message, conversationHistory);
+                
+                typingIndicator.style.display = 'none';
+                addMessageToChat(response, false);
+                
+                const updatedMessages = [
+                    ...conversationHistory,
+                    { role: 'user', content: message, type: 'text' },
+                    { role: 'assistant', content: response, type: 'text' }
+                ];
+                chatHistory.updateConversation(conversationId, updatedMessages);
+                
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                addMessageToChat('خطا در ارتباط با سرور. لطفا دوباره تلاش کنید.', false);
+            }
+        }
+
+        async function sendMessageFromChat() {
+            const message = chatMessageInput.value.trim();
+            if (!message) return;
+
+            addMessageToChat(message, true);
+            chatMessageInput.value = '';
+            autoResizeTextarea(chatMessageInput);
+
+            // درخواست چت معمولی
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                const conversationId = chatHistory.getCurrentConversationId();
+                let conversationHistory = [];
+                if (conversationId) {
+                    const conversation = chatHistory.getConversation(conversationId);
+                    if (conversation) {
+                        conversationHistory = conversation.messages;
+                    }
+                }
+
+                const response = await sendMessageToAI(message, conversationHistory);
+                
+                typingIndicator.style.display = 'none';
+                addMessageToChat(response, false);
+                
+                if (conversationId) {
+                    const updatedMessages = [
+                        ...conversationHistory,
+                        { role: 'user', content: message, type: 'text' },
+                        { role: 'assistant', content: response, type: 'text' }
+                    ];
+                    chatHistory.updateConversation(conversationId, updatedMessages);
+                }
+                
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                addMessageToChat('خطا در ارتباط با سرور. لطفا دوباره تلاش کنید.', false);
+            }
+        }
+
+        // رویدادها
+        sendButton.addEventListener('click', sendMessageFromMain);
+        chatSendButton.addEventListener('click', sendMessageFromChat);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessageFromMain();
+            }
+        });
+        
+        chatMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessageFromChat();
+            }
+        });
+
+        // رویداد auto-resize برای textarea
+        messageInput.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+
+        chatMessageInput.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+
+        // نمایش اطلاعات کاربر پس از لود صفحه
+        setTimeout(() => {
+            userProfile.displayUserInfo();
+            setTimeout(() => {
+                userInfo.style.display = 'none';
+            }, 5000);
+        }, 2000);
+
+        // فعال کردن دکمه‌های کپی در ابتدا
+        initCopyButtons();
+
+        messageInput.focus();
+    </script>
+</body>
+</html>
